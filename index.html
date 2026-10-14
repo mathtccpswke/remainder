@@ -1,0 +1,699 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>餘數與同餘演示</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: graph-paper classroom board. Lesson tabs across the top (in textbook order);
+   each tab = a narrow control column + a large stage for projecting in class. */
+:root{
+  --bg:#EDF2F8; --paper:#FFFFFF; --ink:#16243A; --muted:#55667C; --line:#D2DCE7; --grid:rgba(43,108,212,.07);
+  --blue:#2B6CD4; --blue-soft:#D5E4FB; --violet:#8A4FCB; --violet-soft:#EBDEF8;
+  --green:#1E8A58; --green-soft:#D3EFE0; --orange:#E3701A; --orange-soft:#FCE1C7;
+  --red:#CC3E35; --red-soft:#F8D7D3; --gold:#A97F00; --gold-soft:#FAEFC4; --on-accent:#FFFFFF;
+  --f-display:"LXGW WenKai TC","Noto Sans TC","PingFang HK","Microsoft JhengHei",sans-serif;
+  --f-body:"Noto Sans TC","PingFang HK","Microsoft JhengHei",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1622; --paper:#162130; --ink:#E7EDF5; --muted:#9BABBE; --line:#2B3A4D; --grid:rgba(110,162,242,.06);
+  --blue:#72A5F3; --blue-soft:#1E3960; --violet:#B98FEA; --violet-soft:#33264B;
+  --green:#4CC58B; --green-soft:#173D2B; --orange:#F5A04E; --orange-soft:#4A2F15;
+  --red:#F27C72; --red-soft:#4B2220; --gold:#E4BC3E; --gold-soft:#3D3413; --on-accent:#10161F; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1622; --paper:#162130; --ink:#E7EDF5; --muted:#9BABBE; --line:#2B3A4D; --grid:rgba(110,162,242,.06);
+  --blue:#72A5F3; --blue-soft:#1E3960; --violet:#B98FEA; --violet-soft:#33264B;
+  --green:#4CC58B; --green-soft:#173D2B; --orange:#F5A04E; --orange-soft:#4A2F15;
+  --red:#F27C72; --red-soft:#4B2220; --gold:#E4BC3E; --gold-soft:#3D3413; --on-accent:#10161F; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.6;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;margin-bottom:14px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(30px,4.4vw,46px);line-height:1.15;margin:0;text-wrap:balance}
+header p{margin:0;color:var(--muted)}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.tab{font:inherit;cursor:pointer;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);
+  border-radius:12px;padding:8px 14px;display:flex;flex-direction:column;align-items:flex-start;line-height:1.25;text-align:left}
+.tab small{font-size:12px;color:var(--muted);letter-spacing:.06em}
+.tab span{font-family:var(--f-display);font-size:19px;font-weight:700}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab[aria-selected="true"] small{color:var(--bg);opacity:.75}
+.tab:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible,.cell:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+
+.panel{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:860px){.panel{grid-template-columns:minmax(0,1fr)}}
+.controls,.stage{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+.controls{display:flex;flex-direction:column;gap:12px}
+.controls h2,.stage h2{font-family:var(--f-display);font-size:22px;margin:0;line-height:1.3}
+.field{display:flex;flex-direction:column;gap:4px;font-size:15px;color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row .field{flex:1 1 70px}
+input[type=number],select{font:inherit;font-size:20px;font-variant-numeric:tabular-nums;color:var(--ink);background:var(--bg);
+  border:1.5px solid var(--line);border-radius:8px;padding:4px 8px;width:100%;min-width:0}
+input[type=range]{width:100%;accent-color:var(--orange)}
+.btn{font:inherit;font-size:16px;cursor:pointer;border-radius:999px;padding:6px 14px;border:1.5px solid var(--ink);background:transparent;color:var(--ink)}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:var(--on-accent);font-weight:700}
+.btn.small{font-size:14px;padding:3px 10px}
+.btn:disabled{opacity:.35;cursor:default}
+.check{display:flex;gap:8px;align-items:center;font-size:16px;cursor:pointer}
+.check input{width:20px;height:20px;accent-color:var(--orange)}
+.big{font-family:var(--f-display);font-size:30px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.label{font-size:13px;letter-spacing:.08em;color:var(--muted)}
+.explain{background:var(--blue-soft);border-radius:10px;padding:12px 14px;font-size:18px;line-height:1.7}
+.explain b{color:var(--ink)}
+.status{border-radius:10px;padding:10px 14px;font-size:18px;font-weight:500}
+.status.ok{background:var(--green-soft);color:var(--ink)}
+.status.bad{background:var(--red-soft);color:var(--ink)}
+.status.info{background:var(--gold-soft);color:var(--ink)}
+.stage{display:flex;flex-direction:column;gap:14px}
+.num{font-variant-numeric:tabular-nums}
+.tag{display:inline-block;font-size:14px;border-radius:999px;padding:1px 10px;margin-left:6px;font-weight:500}
+.tag.ok{background:var(--green-soft);color:var(--green)}
+.tag.bad{background:var(--red-soft);color:var(--red)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border-radius:999px;padding:2px 12px;font-size:18px;font-variant-numeric:tabular-nums;border:1.5px solid var(--line)}
+.chip.yes{border-color:var(--green);color:var(--green);background:var(--green-soft)}
+.chip.no{color:var(--muted);text-decoration:line-through}
+.chip.best{background:var(--orange);border-color:var(--orange);color:var(--on-accent);font-weight:700}
+.steps{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.stepdot{width:12px;height:12px;border-radius:50%;background:var(--line)}
+.stepdot.on{background:var(--orange)}
+
+/* wood */
+.woodrow{display:flex;flex-direction:column;gap:6px}
+.woodhead{font-size:18px}
+.bar{display:flex;height:46px;width:100%;overflow:hidden}
+.seg{height:100%;flex:none;display:grid;place-items:center;font-size:13px;font-variant-numeric:tabular-nums;overflow:hidden;white-space:nowrap}
+.seg.piece{background:var(--blue-soft);box-shadow:inset 0 0 0 1px var(--blue);color:var(--ink)}
+.seg.cut{background:var(--ink)}
+.seg.cut.saw{background:var(--orange)}
+.seg.left{background:repeating-linear-gradient(45deg,var(--red-soft) 0 6px,transparent 6px 12px);box-shadow:inset 0 0 0 1.5px var(--red);color:var(--red);font-weight:700}
+.seg.ghostcut{background:transparent;box-shadow:inset 0 0 0 2px var(--orange);opacity:.9}
+.formula{font-size:16px;color:var(--muted);font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--muted)}
+.legend i{display:inline-block;width:18px;height:12px;vertical-align:-1px;margin-right:5px;border-radius:2px}
+
+/* svg */
+svg{display:block;width:100%;height:auto}
+.s-ink{fill:var(--ink)} .s-muted{fill:var(--muted)}
+.s-text{font-family:var(--f-body);font-size:17px;fill:var(--ink)}
+.s-big{font-family:var(--f-display);font-weight:700}
+
+/* piles */
+.piles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.pile{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dots{display:grid;gap:4px;overflow-x:auto}
+.dot{border-radius:50%;background:var(--blue);aspect-ratio:1}
+.dot.ghost{background:transparent;box-shadow:inset 0 0 0 2px var(--blue)}
+.dot.loose{background:var(--red)}
+.dot.ghost.loose{background:transparent;box-shadow:inset 0 0 0 2px var(--red)}
+.dot.extra{background:var(--orange)}
+.extra-box{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:14px;color:var(--muted)}
+
+/* hundred chart */
+.chart{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px;max-width:600px;width:100%}
+.cell{position:relative;aspect-ratio:1;display:grid;place-items:center;border-radius:6px;background:var(--paper);
+  border:1px solid var(--line);font-size:clamp(11px,1.7vw,17px);font-variant-numeric:tabular-nums;cursor:pointer;padding:0;color:var(--ink);font-family:inherit}
+.cell .marks{position:absolute;bottom:3px;left:0;right:0;display:flex;justify-content:center;gap:2px}
+.cell .marks i{width:22%;max-width:9px;height:4px;border-radius:2px}
+.cell.common{background:var(--gold-soft);font-weight:700}
+.cell.common::after{content:"★";position:absolute;top:0;right:3px;font-size:10px;color:var(--gold)}
+.cell.target{background:var(--orange);color:var(--on-accent);font-weight:700;border-color:var(--orange)}
+.cell.picked{outline:3px solid var(--ink);outline-offset:1px}
+.c1{background:var(--blue)} .c2{background:var(--violet)} .c3{background:var(--green)}
+.info{font-size:17px;font-variant-numeric:tabular-nums;min-height:2em}
+
+/* clock */
+.clockwrap{max-width:480px;width:100%;margin:0 auto}
+.k1{fill:var(--blue)} .k2{fill:var(--violet)} .k3{fill:var(--green)}
+.t1{color:var(--blue)} .t2{color:var(--violet)} .t3{color:var(--green)}
+/* practice */
+.practice{grid-column:1/-1;background:var(--paper);border:2px solid var(--orange);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+body.no-pr .practice{display:none}
+.pr-head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:center}
+.pr-badge{background:var(--orange);color:var(--on-accent);font-weight:700;border-radius:999px;padding:2px 12px;font-size:14px;letter-spacing:.08em}
+.pr-score{font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}
+.pr-q{font-size:20px;line-height:1.75}
+.pr-n{display:inline-block;font-family:var(--f-display);font-weight:700;margin-right:10px;color:var(--orange)}
+.pr-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pr-ans{display:flex;align-items:center;gap:6px;font-size:18px}
+.pr-ans input{width:140px}
+.pr-sol{margin-top:6px;font-weight:400;line-height:1.7}
+.pr-note{font-size:15px;color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hdr-tools{margin-left:auto}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>餘數與同餘</h1>
+  <p>第十一課 · 課堂互動演示</p>
+  <div class="hdr-tools"><button class="btn small" id="prToggle">隱藏練習題</button></div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab" role="tab" data-tab="wood" aria-selected="true"><small>動腦筋</small><span>木料切割</span></button>
+  <button class="tab" role="tab" data-tab="area" aria-selected="false"><small>例子一</small><span>面積模型</span></button>
+  <button class="tab" role="tab" data-tab="pile" aria-selected="false"><small>例子二</small><span>餘與欠</span></button>
+  <button class="tab" role="tab" data-tab="chart" aria-selected="false"><small>例子三、四</small><span>百數表</span></button>
+  <button class="tab" role="tab" data-tab="clock" aria-selected="false"><small>例子六</small><span>餘數時鐘</span></button>
+</nav>
+
+<!-- WOOD -->
+<section class="panel" id="tab-wood">
+  <div class="practice" id="pr-wood"></div>
+  <div class="controls">
+    <h2>木料切割</h2>
+    <div class="row">
+      <label class="field">木料甲（厘米）<input id="woodA" type="number" min="10" max="2000" value="399"></label>
+      <label class="field">木料乙（厘米）<input id="woodB" type="number" min="10" max="2000" value="699"></label>
+    </div>
+    <label class="field">每切一刀耗損（厘米）<input id="woodLoss" type="number" min="0" max="5" value="1"></label>
+    <div class="field">每段長度
+      <div class="big"><span id="woodLVal">50</span> 厘米</div>
+      <input id="woodL" type="range" min="1" max="399" value="50" aria-label="每段長度">
+      <div class="row"><button class="btn small" id="woodMinus">− 1</button><button class="btn small" id="woodPlus">+ 1</button></div>
+    </div>
+    <label class="check"><input type="checkbox" id="woodGhost">把鋸屑黏在每段後面</label>
+    <button class="btn primary" id="woodAns">揭曉最長答案</button>
+  </div>
+  <div class="stage">
+    <div class="legend"><span><i style="background:var(--blue-soft);box-shadow:inset 0 0 0 1px var(--blue)"></i>木料</span><span><i style="background:var(--ink)"></i>鋸屑（切口）</span><span><i style="background:var(--red-soft);box-shadow:inset 0 0 0 1.5px var(--red)"></i>剩下的廢料</span><span><i style="box-shadow:inset 0 0 0 2px var(--orange)"></i>補回的幻影鋸屑</span></div>
+    <div id="woodBars" style="display:flex;flex-direction:column;gap:18px"></div>
+    <div id="woodStatus"></div>
+    <div class="explain" id="woodExplain"></div>
+  </div>
+</section>
+
+<!-- AREA -->
+<section class="panel" id="tab-area" hidden>
+  <div class="practice" id="pr-area"></div>
+  <div class="controls">
+    <h2>乘積的餘數</h2>
+    <div class="row">
+      <label class="field">長<input id="arL" type="number" min="1" max="300" value="9"></label>
+      <label class="field">闊<input id="arW" type="number" min="1" max="300" value="10"></label>
+      <label class="field">÷<input id="arN" type="number" min="2" max="50" value="4"></label>
+    </div>
+    <div class="presets">
+      <button class="btn small" data-area="9,10,4">9 × 10 ÷ 4</button>
+      <button class="btn small" data-area="13,11,5">13 × 11 ÷ 5</button>
+      <button class="btn small" data-area="139,58,7">課本 139 × 58 ÷ 7</button>
+    </div>
+    <div class="steps" id="arDots"></div>
+    <div class="row"><button class="btn" id="arPrev">上一步</button><button class="btn primary" id="arNext">下一步</button></div>
+  </div>
+  <div class="stage">
+    <div id="arFacts" class="formula"></div>
+    <div style="overflow-x:auto"><svg id="arSvg" role="img" aria-label="長方形面積模型"></svg></div>
+    <div class="explain" id="arExplain"></div>
+  </div>
+</section>
+
+<!-- PILE -->
+<section class="panel" id="tab-pile" hidden>
+  <div class="practice" id="pr-pile"></div>
+  <div class="controls">
+    <h2>餘與欠</h2>
+    <div class="row">
+      <label class="field">第 1 堆<input id="p1" type="number" min="1" max="150" value="23"></label>
+      <label class="field">第 2 堆<input id="p2" type="number" min="1" max="150" value="31"></label>
+      <label class="field">第 3 堆<input id="p3" type="number" min="0" max="150" value="39"></label>
+    </div>
+    <div class="row">
+      <label class="field">每堆都<select id="pMode"><option value="rem">餘下</option><option value="short">欠</option></select></label>
+      <label class="field">粒數<input id="pR" type="number" min="0" max="30" value="3"></label>
+    </div>
+    <div class="presets">
+      <button class="btn small" data-pile="23,31,39,rem,3">餘 3 粒</button>
+      <button class="btn small" data-pile="22,34,46,short,2">欠 2 粒</button>
+    </div>
+    <div class="field">分給（每排 = 每人一粒）
+      <div class="big"><span id="pKVal">2</span> 位同學</div>
+      <input id="pK" type="range" min="2" max="20" value="2" aria-label="同學人數">
+      <div class="row"><button class="btn small" id="pMinus">− 1</button><button class="btn small" id="pPlus">+ 1</button></div>
+    </div>
+    <button class="btn primary" id="pReveal">揭曉：可以是幾位同學？</button>
+  </div>
+  <div class="stage">
+    <div class="legend"><span><i style="background:var(--blue);border-radius:50%;width:12px"></i>真的有</span><span><i style="background:var(--orange);border-radius:50%;width:12px"></i>餘下（先拿走）</span><span><i style="box-shadow:inset 0 0 0 2px var(--blue);border-radius:50%;width:12px"></i>欠的幻影粒</span><span><i style="background:var(--red);border-radius:50%;width:12px"></i>排不齊</span></div>
+    <div class="piles" id="piles"></div>
+    <div id="pStatus"></div>
+    <div id="pRevealBox"></div>
+  </div>
+</section>
+
+<!-- CHART -->
+<section class="panel" id="tab-chart" hidden>
+  <div class="practice" id="pr-chart"></div>
+  <div class="controls">
+    <h2>同餘與 L.C.M.</h2>
+    <div class="row">
+      <label class="field">除數 1<input id="c1" type="number" min="2" max="30" value="4"></label>
+      <label class="field">除數 2<input id="c2" type="number" min="2" max="30" value="6"></label>
+      <label class="field">除數 3<input id="c3" type="number" min="0" max="30" value="" placeholder="可留空"></label>
+    </div>
+    <div class="row">
+      <label class="field">每個都<select id="cMode"><option value="rem">餘</option><option value="short">欠</option></select></label>
+      <label class="field">數量<input id="cR" type="number" min="1" max="29" value="1"></label>
+      <label class="field">數表<select id="cRange"><option value="100">1–100</option><option value="200">1–200</option></select></label>
+    </div>
+    <div class="presets">
+      <button class="btn small" data-chart="4,6,,rem,1,100">4、6 餘 1</button>
+      <button class="btn small" data-chart="5,6,,short,2,100">5、6 欠 2</button>
+      <button class="btn small" data-chart="3,4,5,rem,2,200">3、4、5 餘 2</button>
+    </div>
+    <div class="steps" id="cDots"></div>
+    <div class="row"><button class="btn" id="cPrev">上一步</button><button class="btn primary" id="cNext">下一步</button></div>
+    <p class="label" style="margin:0">提示：點擊任何格子，看它的除式</p>
+  </div>
+  <div class="stage">
+    <div class="legend" id="cLegend"></div>
+    <div class="explain" id="cExplain"></div>
+    <div class="chart" id="chart"></div>
+    <div class="info" id="cInfo"></div>
+  </div>
+</section>
+
+<!-- CLOCK -->
+<section class="panel" id="tab-clock" hidden>
+  <div class="practice" id="pr-clock"></div>
+  <div class="controls">
+    <h2>餘數時鐘</h2>
+    <div class="field">時鐘有
+      <div class="big"><span id="ckNVal">4</span> 格</div>
+      <input id="ckN" type="range" min="2" max="12" value="4" aria-label="時鐘格數">
+    </div>
+    <div class="row">
+      <label class="field"><span class="t1">數字 1</span><input id="k1" type="number" min="0" max="9999" value="17"></label>
+      <label class="field"><span class="t2">數字 2</span><input id="k2" type="number" min="0" max="9999" value="29"></label>
+      <label class="field"><span class="t3">數字 3</span><input id="k3" type="number" min="0" max="9999" value="47"></label>
+    </div>
+    <div class="presets">
+      <button class="btn small" data-clock="17,29,47">17、29、47</button>
+      <button class="btn small" data-clock="358,625,981">課本 358、625、981</button>
+    </div>
+    <div class="field">逐步跳圈
+      <div class="row" id="ckJumpBtns"></div>
+    </div>
+  </div>
+  <div class="stage">
+    <div class="clockwrap"><svg id="ckSvg" viewBox="0 0 440 440" role="img" aria-label="餘數時鐘"></svg></div>
+    <div class="info" id="ckInfo"></div>
+    <div id="ckStatus"></div>
+    <div class="explain" id="ckDiff"></div>
+  </div>
+</section>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a};
+const lcm=(a,b)=>a/gcd(a,b)*b;
+const divisors=n=>{const r=[];for(let i=1;i<=n;i++)if(n%i===0)r.push(i);return r};
+function intv(id,min,max,def){const v=parseInt($(id).value,10);if(isNaN(v))return def;return Math.min(max,Math.max(min,v))}
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- tabs ---------- */
+const tabs=[...document.querySelectorAll('.tab')];
+function showTab(name){
+  tabs.forEach(t=>{const on=t.dataset.tab===name;t.setAttribute('aria-selected',on);$('tab-'+t.dataset.tab).hidden=!on});
+  try{localStorage.setItem('remTab',name)}catch(e){}
+}
+tabs.forEach(t=>t.addEventListener('click',()=>showTab(t.dataset.tab)));
+
+/* ---------- 1. wood ---------- */
+let woodShowAns=false;
+function renderWood(){
+  const A=intv('woodA',10,2000,399),B=intv('woodB',10,2000,699),loss=intv('woodLoss',0,5,1);
+  const s=$('woodL');const maxL=Math.min(A,B);s.max=maxL;
+  let L=Math.min(Math.max(parseInt(s.value)||1,1),maxL);s.value=L;$('woodLVal').textContent=L;
+  const ghost=$('woodGhost').checked;
+  const maxLen=Math.max(A,B)+loss;
+  const ans=gcd(A+loss,B+loss)-loss;
+  let allOk=true;
+  $('woodBars').innerHTML=[[A,'木料甲'],[B,'木料乙']].map(([len,name])=>{
+    const n=Math.floor((len+loss)/(L+loss));
+    const used=n*L+(n-1)*loss,left=len-used,ok=left===0;
+    if(!ok)allOk=false;
+    const segs=[];
+    for(let i=0;i<n;i++){segs.push(['piece',L]);if(i<n-1&&loss>0)segs.push(['cut',loss])}
+    if(left>0)segs.push(['left',left]);else if(ghost&&loss>0)segs.push(['ghostcut',loss]);
+    const thin=n<=60;
+    const html=segs.map(([t,l])=>{
+      const w=l/maxLen*100;let lab='';
+      if(t==='piece'&&w>4.5)lab=L;
+      if(t==='left'&&w>7)lab='剩 '+left;
+      const cls='seg '+t+(t==='cut'&&ghost?' saw':'');
+      const mw=(t==='cut'||t==='ghostcut')&&thin?'min-width:3px;':'';
+      return `<span class="${cls}" style="width:${w}%;${mw}">${lab}</span>`}).join('');
+    let f;
+    if(ghost&&loss>0){
+      f=ok?`${len} + ${loss} = ${len+loss} = ${n} × ${L+loss}`
+          :`${len} + ${loss} = ${len+loss}，${len+loss} ÷ ${L+loss} = ${n} … ${left}`;
+    }else{
+      f=`${n} 段 × ${L} 厘米 + ${n-1} 刀 × ${loss} 厘米 = ${used} 厘米`+(ok?'':`，剩 ${left} 厘米`);
+    }
+    return `<div class="woodrow"><div class="woodhead"><b>${name}</b> <span class="num">${len}</span> 厘米 → 切出 ${n} 段<span class="tag ${ok?'ok':'bad'}">${ok?'剛好用完 ✓':'有剩 ✗'}</span></div><div class="bar">${html}</div><div class="formula">${f}</div></div>`;
+  }).join('');
+  let st;
+  if(allOk&&L===ans)st=`<div class="status ok">兩根都剛好用完，而且 ${L} 厘米已經是最長！</div>`;
+  else if(allOk)st=`<div class="status ok">兩根都剛好用完！每段 ${L} 厘米可以。還可以更長嗎？</div>`;
+  else st=`<div class="status bad">有木料剩下，每段 ${L} 厘米不行，再試試。</div>`;
+  if(woodShowAns){
+    st+=ans>=1?`<div class="status info" style="margin-top:8px">${A} + ${loss} = ${A+loss}，${B} + ${loss} = ${B+loss}；兩數的 H.C.F. 是 ${ans+loss}，所以每段最長 ${ans+loss} − ${loss} = <b>${ans} 厘米</b>。</div>`
+              :`<div class="status info" style="margin-top:8px">這兩根木料沒有合適的長度。</div>`;
+  }
+  $('woodStatus').innerHTML=st;
+  $('woodExplain').innerHTML=ghost
+    ?`每切一刀浪費 ${loss} 厘米。把這 ${loss} 厘米「黏」在前一段後面，每段就變成 <b>${L} + ${loss} = ${L+loss}</b> 厘米。最後一段後面沒有鋸屑，所以要補回 ${loss} 厘米（虛線），木料長度就要先 <b>+ ${loss}</b>。`
+    :`拉動「每段長度」，看看兩根木料能否剛好切完。然後剔選「把鋸屑黏在每段後面」，找出規律。`;
+}
+['woodA','woodB','woodLoss','woodL'].forEach(id=>$(id).addEventListener('input',renderWood));
+$('woodGhost').addEventListener('change',renderWood);
+$('woodMinus').onclick=()=>{$('woodL').value=+$('woodL').value-1;renderWood()};
+$('woodPlus').onclick=()=>{$('woodL').value=+$('woodL').value+1;renderWood()};
+$('woodAns').onclick=()=>{woodShowAns=true;const A=intv('woodA',10,2000,399),B=intv('woodB',10,2000,699),loss=intv('woodLoss',0,5,1);
+  const a=gcd(A+loss,B+loss)-loss;if(a>=1)$('woodL').value=a;$('woodGhost').checked=true;renderWood()};
+
+/* ---------- 2. area ---------- */
+let arStep=0;const AR_MAX=4;
+function renderArea(){
+  const L=intv('arL',1,300,9),W=intv('arW',1,300,10),n=intv('arN',2,50,4);
+  const rL=L%n,qL=L-rL,rW=W%n,qW=W-rW,c=rL*rW,P=L*W;
+  $('arDots').innerHTML=Array.from({length:AR_MAX+1},(_,i)=>`<span class="stepdot ${i<=arStep?'on':''}"></span>`).join('')+`<span class="label">第 ${arStep+1} / ${AR_MAX+1} 步</span>`;
+  $('arPrev').disabled=arStep===0;$('arNext').disabled=arStep===AR_MAX;
+  $('arFacts').innerHTML=arStep>=1?`長 ${L} ÷ ${n} = ${Math.floor(L/n)} … <b>${rL}</b>　　闊 ${W} ÷ ${n} = ${Math.floor(W/n)} … <b>${rW}</b>`:`求 ${L} × ${W} ÷ ${n} 的餘數`;
+  const cell=Math.min(620/L,380/W),w=L*cell,h=W*cell;
+  const pl=60,pt=44,pr=80,pb=56,X=x=>pl+x,Y=y=>pt+y;
+  let s='';
+  s+=`<rect x="${X(0)}" y="${Y(0)}" width="${w}" height="${h}" style="fill:var(--paper)"/>`;
+  if(arStep>=1&&qW>0)s+=`<rect x="${X(0)}" y="${Y(0)}" width="${w}" height="${qW*cell}" style="fill:var(--blue-soft)"/>`;
+  if(arStep>=2&&qL>0&&rW>0)s+=`<rect x="${X(0)}" y="${Y(qW*cell)}" width="${qL*cell}" height="${rW*cell}" style="fill:var(--violet-soft)"/>`;
+  if(arStep>=3&&c>0)s+=`<rect x="${X(qL*cell)}" y="${Y(qW*cell)}" width="${rL*cell}" height="${rW*cell}" style="fill:var(--orange)"/>`;
+  if(L<=40&&W<=40){
+    for(let i=1;i<L;i++)s+=`<line x1="${X(i*cell)}" y1="${Y(0)}" x2="${X(i*cell)}" y2="${Y(h)}" style="stroke:var(--line)"/>`;
+    for(let j=1;j<W;j++)s+=`<line x1="${X(0)}" y1="${Y(j*cell)}" x2="${X(w)}" y2="${Y(j*cell)}" style="stroke:var(--line)"/>`;
+  }
+  if(arStep>=1&&rW>0&&qW>0)s+=`<line x1="${X(0)}" y1="${Y(qW*cell)}" x2="${X(w)}" y2="${Y(qW*cell)}" style="stroke:var(--ink);stroke-width:2;stroke-dasharray:6 4"/>`;
+  if(arStep>=2&&rL>0&&qL>0&&rW>0)s+=`<line x1="${X(qL*cell)}" y1="${Y(qW*cell)}" x2="${X(qL*cell)}" y2="${Y(h)}" style="stroke:var(--ink);stroke-width:2;stroke-dasharray:6 4"/>`;
+  s+=`<rect x="${X(0)}" y="${Y(0)}" width="${w}" height="${h}" style="fill:none;stroke:var(--ink);stroke-width:2"/>`;
+  // inside labels
+  if(arStep>=1&&qW>0&&qW*cell>40)s+=`<text class="s-text s-big" x="${X(w/2)}" y="${Y(qW*cell/2)}" text-anchor="middle" dominant-baseline="middle">${L} × ${qW}　是 ${n} 的倍數</text>`;
+  if(arStep>=2&&qL>0&&rW>0&&rW*cell>26&&qL*cell>140)s+=`<text class="s-text" x="${X(qL*cell/2)}" y="${Y(qW*cell+rW*cell/2)}" text-anchor="middle" dominant-baseline="middle">${qL} × ${rW}　是 ${n} 的倍數</text>`;
+  // outer labels
+  s+=`<text class="s-text s-big" x="${X(w/2)}" y="${pt-16}" text-anchor="middle">長 ${L}</text>`;
+  s+=`<text class="s-text s-big" x="${pl-10}" y="${Y(h/2)}" text-anchor="end" dominant-baseline="middle">闊 ${W}</text>`;
+  if(arStep>=1){
+    if(qW>0)s+=`<text class="s-text" x="${X(w)+10}" y="${Y(qW*cell/2)}" dominant-baseline="middle" style="fill:var(--blue)">${qW}</text>`;
+    if(rW>0)s+=`<text class="s-text" x="${X(w)+10}" y="${Y(qW*cell+rW*cell/2)}" dominant-baseline="middle" style="fill:var(--orange)">${rW}</text>`;
+  }
+  if(arStep>=2&&rW>0){
+    if(qL>0)s+=`<text class="s-text" x="${X(qL*cell/2)}" y="${Y(h)+26}" text-anchor="middle" style="fill:var(--violet)">${qL}</text>`;
+    if(rL>0)s+=`<text class="s-text" x="${X(qL*cell+rL*cell/2)}" y="${Y(h)+26}" text-anchor="middle" style="fill:var(--orange)">${rL}</text>`;
+  }
+  const svg=$('arSvg');svg.setAttribute('viewBox',`0 0 ${pl+w+pr} ${pt+h+pb}`);svg.style.maxWidth=(pl+w+pr)+'px';svg.innerHTML=s;
+  const ex=[
+    `把 <b>${L} × ${W}</b> 看成一個長方形的面積：長 ${L}，闊 ${W}。我們要找它除以 ${n} 的餘數。`,
+    `闊 ${W} = <b>${qW}</b> + ${rW}。上面藍色部分是 ${L} × ${qW}，因為 ${qW} 是 ${n} 的倍數，整塊都可以被 ${n} 整除，不用理會。`,
+    rW===0?`闊剛好是 ${n} 的倍數，整個長方形都是藍色，可以整除。`:`長 ${L} = <b>${qL}</b> + ${rL}。下面紫色部分是 ${qL} × ${rW}，${qL} 也是 ${n} 的倍數，同樣可以整除。`,
+    c===0?`沒有剩下角落（面積是 0），所以 ${L} × ${W} 可以被 ${n} 整除，<b>餘數是 0</b>。`
+         :`只剩右下角的橙色小格：${rL} × ${rW} = ${c}。<br>${c} ÷ ${n} = ${Math.floor(c/n)} … <b>${c%n}</b>，所以答案餘數是 <b>${c%n}</b>。`,
+    `直接計算驗證：${L} × ${W} = ${P}，${P} ÷ ${n} = ${Math.floor(P/n)} … <b>${P%n}</b> ✓<br>口訣：<b>先把兩個數的餘數相乘，再除一次。</b>`
+  ];
+  $('arExplain').innerHTML=ex[arStep];
+}
+['arL','arW','arN'].forEach(id=>$(id).addEventListener('input',renderArea));
+$('arPrev').onclick=()=>{arStep=Math.max(0,arStep-1);renderArea()};
+$('arNext').onclick=()=>{arStep=Math.min(AR_MAX,arStep+1);renderArea()};
+document.querySelectorAll('[data-area]').forEach(b=>b.onclick=()=>{const [l,w,n]=b.dataset.area.split(',');$('arL').value=l;$('arW').value=w;$('arN').value=n;arStep=0;renderArea()});
+
+/* ---------- 3. piles ---------- */
+let pShow=false;
+function renderPile(){
+  const piles=['p1','p2','p3'].map(id=>intv(id,0,150,0)).filter(x=>x>0);
+  const mode=$('pMode').value,r=intv('pR',0,30,0);
+  const k=+$('pK').value;$('pKVal').textContent=k;
+  const d=k>14?13:k>9?16:20;
+  let allOk=true,bad=false;
+  const adjs=[];
+  $('piles').innerHTML=piles.map((p,idx)=>{
+    const adj=mode==='rem'?p-r:p+r;adjs.push(adj);
+    if(adj<=0){bad=true;return `<div class="pile"><b>第 ${idx+1} 堆：${p} 粒</b><div class="status bad">粒數不夠拿走 ${r} 粒</div></div>`}
+    const main=mode==='rem'?adj:p,full=Math.floor(adj/k)*k,ok=adj%k===0;
+    if(!ok)allOk=false;
+    let dots='';
+    for(let i=0;i<adj;i++)dots+=`<span class="dot${i>=main?' ghost':''}${i>=full?' loose':''}"></span>`;
+    const extra=mode==='rem'&&r>0?`<div class="extra-box">餘下 ${r} 粒（先拿走）：${'<span class="dot extra" style="width:'+d+'px"></span>'.repeat(r)}</div>`
+               :mode==='short'&&r>0?`<div class="extra-box">補上 ${r} 粒幻影（虛線）</div>`:'';
+    const line=ok?`${adj} ÷ ${k} = ${adj/k}（每人 ${adj/k} 粒）<span class="tag ok">剛好 ✓</span>`
+                 :`${adj} ÷ ${k} = ${Math.floor(adj/k)} … ${adj%k}<span class="tag bad">排不齊 ✗</span>`;
+    return `<div class="pile"><b>第 ${idx+1} 堆：${p} 粒 ${mode==='rem'?'− ':'+ '}${r} = ${adj}</b>${extra}<div class="dots" style="grid-template-columns:repeat(${k},${d}px)">${dots}</div><div class="formula">${line}</div></div>`;
+  }).join('');
+  let st='';
+  if(bad)st=`<div class="status bad">請檢查粒數。</div>`;
+  else if(k<=r)st=`<div class="status bad">只有 ${k} 位同學，${mode==='rem'?`餘下 ${r} 粒已經夠每人再分一粒`:`欠 ${r} 粒等於少分了一整輪`}，所以${mode==='rem'?'餘數':'欠的數量'}一定要<b>比人數少</b>。</div>`;
+  else if(allOk)st=`<div class="status ok">全部排得整整齊齊！可以是 ${k} 位同學。</div>`;
+  else st=`<div class="status bad">還有堆排不齊，試另一個數。</div>`;
+  $('pStatus').innerHTML=st;
+  if(pShow&&!bad&&adjs.length){
+    const g=adjs.reduce(gcd),ds=divisors(g),okds=ds.filter(x=>x>r),best=okds.length?Math.max(...okds):null;
+    $('pRevealBox').innerHTML=`<div class="explain">${mode==='rem'?'各減走':'各補上'} ${r} 粒之後：${adjs.join('、')}，它們的 H.C.F. 是 <b>${g}</b>。<br>公因數有：</div>
+      <div class="chips" style="margin-top:10px">${ds.map(x=>`<span class="chip ${x===best?'best':x>r?'yes':'no'}">${x}</span>`).join('')}</div>
+      <p class="formula" style="margin:8px 0 0">劃線的數不行：${ds.filter(x=>x<=r).join('、')} 位同學太少，不可能${mode==='rem'?'餘':'欠'} ${r} 粒。${best?`所以最多 <b>${best} 位</b>。`:''}</p>`;
+  }else $('pRevealBox').innerHTML='';
+}
+['p1','p2','p3','pR','pK'].forEach(id=>$(id).addEventListener('input',renderPile));
+$('pMode').addEventListener('change',renderPile);
+$('pMinus').onclick=()=>{$('pK').value=+$('pK').value-1;renderPile()};
+$('pPlus').onclick=()=>{$('pK').value=+$('pK').value+1;renderPile()};
+$('pReveal').onclick=()=>{pShow=true;const adjs=['p1','p2','p3'].map(id=>intv(id,0,150,0)).filter(x=>x>0).map(p=>$('pMode').value==='rem'?p-intv('pR',0,30,0):p+intv('pR',0,30,0));
+  if(adjs.every(x=>x>0)){const g=adjs.reduce(gcd);if(g>=2&&g<=20)$('pK').value=g}renderPile()};
+document.querySelectorAll('[data-pile]').forEach(b=>b.onclick=()=>{const [a,c,e,m,r]=b.dataset.pile.split(',');
+  $('p1').value=a;$('p2').value=c;$('p3').value=e;$('pMode').value=m;$('pR').value=r;$('pK').value=2;pShow=false;renderPile()});
+
+/* ---------- 4. hundred chart ---------- */
+let cStep=0,cPick=null;const C_MAX=3;
+function chartData(){
+  const ds=['c1','c2','c3'].map(id=>intv(id,0,30,0)).filter(x=>x>=2);
+  return {ds,mode:$('cMode').value,r:intv('cR',1,29,1),N:+$('cRange').value,L:ds.length?ds.reduce(lcm):1};
+}
+function renderChart(){
+  const {ds,mode,r,N,L}=chartData();
+  $('cDots').innerHTML=Array.from({length:C_MAX+1},(_,i)=>`<span class="stepdot ${i<=cStep?'on':''}"></span>`).join('')+`<span class="label">第 ${cStep+1} / ${C_MAX+1} 步</span>`;
+  $('cPrev').disabled=cStep===0;$('cNext').disabled=cStep===C_MAX;
+  $('cLegend').innerHTML=ds.map((d,i)=>`<span><i class="c${i+1}"></i>${d} 的倍數</span>`).join('')+`<span><i style="background:var(--gold-soft);box-shadow:inset 0 0 0 1px var(--gold)"></i>公倍數 ★</span><span><i style="background:var(--orange)"></i>答案</span>`;
+  const isTarget=v=>mode==='rem'?(v-r>0&&(v-r)%L===0):((v+r)%L===0);
+  let h='';
+  for(let v=1;v<=N;v++){
+    let cls='cell';
+    if(cStep>=2&&v%L===0)cls+=' common';
+    if(cStep>=3&&isTarget(v))cls=cls.replace(' common','')+' target'+(v%L===0?' common':'');
+    if(cPick===v)cls+=' picked';
+    const marks=cStep>=1?ds.map((d,i)=>v%d===0?`<i class="c${i+1}"></i>`:'').join(''):'';
+    h+=`<button class="${cls}" data-v="${v}">${v}<span class="marks">${marks}</span></button>`;
+  }
+  $('chart').innerHTML=h;
+  const commons=[],targets=[];
+  for(let v=1;v<=N;v++){if(v%L===0)commons.push(v);if(isTarget(v))targets.push(v)}
+  const minD=ds.length?Math.min(...ds):0;
+  let ex;
+  if(ds.length<2)ex='請最少輸入兩個除數（2 至 30）。';
+  else if(r>=minD)ex=`${mode==='rem'?'餘數':'欠的數量'} ${r} 太大了，要比每個除數都小（最小的除數是 ${minD}）。`;
+  else ex=[
+    `題目：一個數除以 ${ds.join('、')}，都${mode==='rem'?'餘':'欠'} <b>${r}</b>。這個數是多少？`,
+    `先把 ${ds.join('、')} 的倍數做記號（看格子底部的小色條）。`,
+    `所有色條都有的格子 ★ 就是公倍數：${commons.slice(0,6).join('、')}${commons.length>6?'…':''}。<br>L.C.M. = <b>${L}</b>`,
+    mode==='rem'
+      ?`每個都餘 ${r}，就是公倍數<b>再加 ${r}</b>：${targets.slice(0,6).join('、')}${targets.length>6?'…':''}<br>口訣：<b>餘數相同 → L.C.M. + 餘數</b>`
+      :`每個都欠 ${r}，就是公倍數<b>減去 ${r}</b>：${targets.slice(0,6).join('、')}${targets.length>6?'…':''}<br>口訣：<b>欠數相同 → L.C.M. − 欠數</b>`
+  ][cStep];
+  if(ds.length>=2&&r<minD&&cStep===3&&!targets.length)ex+=`<br>（L.C.M. 太大，數表內找不到，請轉用 1–200）`;
+  $('cExplain').innerHTML=ex;
+  if(cPick&&cPick<=N){
+    $('cInfo').innerHTML=`<b>${cPick}</b>：`+ds.map((d,i)=>{const q=Math.floor(cPick/d),m=cPick%d;
+      return `<span class="t${i+1}">${cPick} ÷ ${d} = ${q} … ${m}${m?`（欠 ${d-m}）`:''}</span>`}).join('　');
+  }else $('cInfo').innerHTML='';
+}
+$('chart').addEventListener('click',e=>{const b=e.target.closest('.cell');if(!b)return;cPick=+b.dataset.v;renderChart();
+  const nb=$('chart').querySelector(`[data-v="${cPick}"]`);if(nb)nb.focus()});
+['c1','c2','c3','cR'].forEach(id=>$(id).addEventListener('input',renderChart));
+['cMode','cRange'].forEach(id=>$(id).addEventListener('change',renderChart));
+$('cPrev').onclick=()=>{cStep=Math.max(0,cStep-1);renderChart()};
+$('cNext').onclick=()=>{cStep=Math.min(C_MAX,cStep+1);renderChart()};
+document.querySelectorAll('[data-chart]').forEach(b=>b.onclick=()=>{const [a,c,e,m,r,n]=b.dataset.chart.split(',');
+  $('c1').value=a;$('c2').value=c;$('c3').value=e;$('cMode').value=m;$('cR').value=r;$('cRange').value=n;cStep=0;cPick=null;renderChart()});
+
+/* ---------- 5. clock ---------- */
+let ckTimer=null,ckMarker=null;
+const CX=220,CY=220,R=148;
+function slotPos(i,n,rad=R){const a=(-90+i*360/n)*Math.PI/180;return [CX+rad*Math.cos(a),CY+rad*Math.sin(a)]}
+function clockNums(){return [['k1',1],['k2',2],['k3',3]].map(([id,c])=>{const v=parseInt($(id).value,10);return isNaN(v)||v<0?null:{v:Math.min(v,9999),c}}).filter(Boolean)}
+function renderClock(centerText){
+  const n=+$('ckN').value;$('ckNVal').textContent=n;
+  const nums=clockNums();
+  const sr=n<=8?30:24;
+  let s=`<circle cx="${CX}" cy="${CY}" r="${R}" style="fill:none;stroke:var(--line);stroke-width:3;stroke-dasharray:4 6"/>`;
+  for(let i=0;i<n;i++){
+    const [x,y]=slotPos(i,n);
+    s+=`<circle cx="${x}" cy="${y}" r="${sr}" style="fill:var(--paper);stroke:var(--ink);stroke-width:2"/>`;
+    s+=`<text class="s-text s-big" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" style="font-size:${n<=8?24:20}px">${i}</text>`;
+    if(n<=8){const [ox,oy]=slotPos(i,n,R+sr+22);
+      s+=`<text class="s-text" x="${ox}" y="${oy}" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:var(--muted)">${i}, ${i+n}, ${i+2*n}…</text>`}
+  }
+  const stack={};
+  nums.forEach(({v,c})=>{const rem=v%n;const k=stack[rem]=(stack[rem]||0)+1;
+    const [x,y]=slotPos(rem,n,R-sr-18-(k-1)*30);const w=14+String(v).length*11;
+    s+=`<rect x="${x-w/2}" y="${y-13}" width="${w}" height="26" rx="13" class="k${c}"/><text class="s-text" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" style="fill:var(--on-accent);font-size:16px;font-weight:700">${v}</text>`});
+  s+=`<g id="ckMark"></g><text id="ckCenter" class="s-text s-big" x="${CX}" y="${CY}" text-anchor="middle" dominant-baseline="central" style="font-size:22px">${centerText||n+' 格時鐘'}</text>`;
+  $('ckSvg').innerHTML=s;
+  $('ckJumpBtns').innerHTML=nums.map(({v,c})=>`<button class="btn small" data-jump="${v}"><span class="t${c}">跳 ${v}</span></button>`).join('');
+  $('ckInfo').innerHTML=nums.map(({v,c})=>`<div class="t${c}">${v} ÷ ${n} = ${Math.floor(v/n)} … <b>${v%n}</b></div>`).join('');
+  const rems=nums.map(o=>o.v%n);
+  $('ckStatus').innerHTML=nums.length>=2?(rems.every(x=>x===rems[0])
+    ?`<div class="status ok">全部停在「${rems[0]}」格！它們除以 ${n} 的餘數相同。</div>`
+    :`<div class="status bad">沒有全部停在同一格，試試轉換格數。</div>`):'';
+  const vals=[...new Set(nums.map(o=>o.v))].sort((a,b)=>a-b);
+  if(vals.length>=2){
+    const diffs=vals.slice(1).map((x,i)=>x-vals[i]),g=diffs.reduce(gcd),ds=divisors(g).filter(x=>x>1);
+    $('ckDiff').innerHTML=`同一格的兩個數，相差一定是<b>整圈</b>（格數的倍數）。<br>相差：${vals.slice(1).map((x,i)=>`${x} − ${vals[i]} = ${diffs[i]}`).join('，')}<br>`+
+      (g>1?`H.C.F. = <b>${g}</b>，所以格數可以是 ${ds.join('、')}，最大是 <b>${g}</b>。`+(g>12?`<br>${g} 格太多，時鐘畫不下，但「找差再求 H.C.F.」的方法一樣適用。`:''):'這些差的 H.C.F. 是 1，找不到大於 1 的格數。');
+  }else $('ckDiff').innerHTML='輸入最少兩個數字。';
+}
+function setMarker(i,n){const [x,y]=slotPos(i,n);const sr=n<=8?30:24;
+  $('ckMark').innerHTML=`<circle cx="${x}" cy="${y}" r="${sr+7}" style="fill:none;stroke:var(--orange);stroke-width:5"/>`}
+function jump(x){
+  clearInterval(ckTimer);const n=+$('ckN').value;renderClock();
+  if(reduceMotion){setMarker(x%n,n);$('ckCenter').textContent=`${x} 停在 ${x%n}`;return}
+  const laps=Math.floor(x/n);let c=0;
+  if(x>60){c=laps*n;$('ckCenter').textContent=`先跳 ${laps} 整圈`;setMarker(0,n)}else setMarker(0,n);
+  const steps=x-c,delay=Math.max(120,Math.min(350,4000/Math.max(steps,1)));
+  const start=x>60?900:300;
+  setTimeout(()=>{
+    if(c===x){$('ckCenter').textContent=`${x} 停在 ${x%n}`;return}
+    ckTimer=setInterval(()=>{c++;setMarker(c%n,n);$('ckCenter').textContent=c===x?`${x} 停在 ${x%n}`:`數到 ${c}`;if(c>=x)clearInterval(ckTimer)},delay);
+  },start);
+}
+$('ckJumpBtns').addEventListener('click',e=>{const b=e.target.closest('[data-jump]');if(b)jump(+b.dataset.jump)});
+['ckN','k1','k2','k3'].forEach(id=>$(id).addEventListener('input',()=>{clearInterval(ckTimer);renderClock()}));
+document.querySelectorAll('[data-clock]').forEach(b=>b.onclick=()=>{const [a,c,e]=b.dataset.clock.split(',');$('k1').value=a;$('k2').value=c;$('k3').value=e;clearInterval(ckTimer);renderClock()});
+
+/* ---------- practice ---------- */
+const rand=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const setV=(id,v)=>{$(id).value=v};
+const PR={
+  wood:{unit:'厘米',
+    gen(){for(;;){const loss=pick([1,1,2]),g=rand(15,120),m=rand(2,9),n=rand(2,9);
+      if(m===n||gcd(m,n)!==1)continue;let A=m*g-loss,B=n*g-loss;if(Math.max(A,B)>1500)continue;if(A>B)[A,B]=[B,A];
+      return{A,B,loss,g,ans:g-loss}}},
+    text:q=>`兩根木料長 <b>${q.A}</b> 厘米和 <b>${q.B}</b> 厘米。把它們鋸成長度相同的小段，每鋸一刀耗損 <b>${q.loss}</b> 厘米，兩根都剛好用完。每段<b>最長</b>是多少厘米？`,
+    sol:q=>`${q.A} + ${q.loss} = ${q.A+q.loss}，${q.B} + ${q.loss} = ${q.B+q.loss}<br>兩數的 H.C.F. 是 ${q.g}，每段最長 ${q.g} − ${q.loss} = <b>${q.ans} 厘米</b>`,
+    why:(q,v)=>v===q.g?`${v} 是「木料 + 鋸屑」的長度，還要減去鋸屑 ${q.loss} 厘米。`:'',
+    hint:'在下面的工具試試這個長度，看看兩根木料能否剛好用完。',
+    load(q,a){setV('woodA',q.A);setV('woodB',q.B);setV('woodLoss',q.loss);$('woodGhost').checked=false;woodShowAns=false;
+      $('woodL').max=Math.min(q.A,q.B);if(a>=1&&a<=Math.min(q.A,q.B))setV('woodL',a);renderWood()}},
+  area:{unit:'',
+    gen(){for(;;){const L=rand(21,299),W=rand(12,99),n=rand(3,9),rL=L%n,rW=W%n;if(!rL||!rW)continue;return{L,W,n,rL,rW,ans:(L*W)%n}}},
+    text:q=>`<b>${q.L} × ${q.W}</b> 的積除以 <b>${q.n}</b>，餘數是多少？（試試不計算乘積！）`,
+    sol:q=>`${q.L} ÷ ${q.n} 餘 ${q.rL}，${q.W} ÷ ${q.n} 餘 ${q.rW}<br>${q.rL} × ${q.rW} = ${q.rL*q.rW}，${q.rL*q.rW} ÷ ${q.n} 餘 <b>${q.ans}</b>`,
+    why:(q,v)=>v===q.rL*q.rW&&v>=q.n?`${v} 是兩個餘數的積，還要再除以 ${q.n} 一次。`:v>=q.n?`餘數一定要比 ${q.n} 小。`:'',
+    hint:'在下面的工具按「下一步」，看看最後剩下的角落。',
+    load(q){setV('arL',q.L);setV('arW',q.W);setV('arN',q.n);arStep=0;renderArea()}},
+  pile:{unit:'位',
+    gen(){for(;;){const g=rand(5,20),mode=pick(['rem','short']),r=rand(1,Math.min(g-1,9));
+      const qmax=Math.floor((150-(mode==='rem'?r:0))/g);if(qmax<4)continue;
+      const s=new Set();while(s.size<3)s.add(rand(2,qmax));const q=[...s].sort((a,b)=>a-b);if(q.reduce(gcd)!==1)continue;
+      const p=q.map(x=>mode==='rem'?g*x+r:g*x-r);return{g,mode,r,p,adj:q.map(x=>g*x),ans:g}}},
+    text:q=>`老師把 <b>${q.p[0]}</b> 粒朱古力、<b>${q.p[1]}</b> 粒糖果和 <b>${q.p[2]}</b> 塊餅乾，分別平均分給班上每位同學，`+
+      (q.mode==='rem'?`三種都剛好餘下 <b>${q.r}</b> 件。`:`但三種都各欠 <b>${q.r}</b> 件才夠分。`)+`這班<b>最多</b>有多少位同學？`,
+    sol:q=>`${q.mode==='rem'?'各減去':'各加上'} ${q.r}：${q.adj.join('、')}<br>H.C.F. 是 ${q.g}，而且 ${q.g} 比 ${q.r} 大，所以最多 <b>${q.g} 位</b>同學`,
+    why:(q,v)=>{if(v===q.p.reduce(gcd)&&v!==q.g)return `記得先${q.mode==='rem'?'減去餘下的':'加上欠的'} ${q.r} 件。`;
+      if(v>1&&v<q.g&&q.g%v===0)return v<=q.r?`${v} 位同學太少，不可能${q.mode==='rem'?'餘':'欠'} ${q.r} 件。`:`${v} 位可以分，但還可以更多。`;return ''},
+    hint:'在下面的工具拉動「同學人數」，看看三堆能否排得整齊。',
+    load(q,a){setV('p1',q.p[0]);setV('p2',q.p[1]);setV('p3',q.p[2]);setV('pMode',q.mode);setV('pR',q.r);
+      setV('pK',a>=2&&a<=20?a:2);pShow=false;renderPile()}},
+  chart:{unit:'',
+    gen(){for(;;){const cnt=pick([2,2,3]),s=new Set();while(s.size<cnt)s.add(rand(2,12));const ds=[...s].sort((a,b)=>a-b);
+      if(ds.some((a,i)=>ds.some((b,j)=>i!==j&&b%a===0)))continue;const L=ds.reduce(lcm);if(L<6||L>60)continue;
+      const mode=pick(['rem','short']),r=rand(1,ds[0]-1);
+      const T=[];for(let v=1;v<=200;v++)if(mode==='rem'?(v>r&&(v-r)%L===0):((v+r)%L===0))T.push(v);
+      const opts=[],t2=T.filter(v=>v>=10&&v<=99),t3=T.filter(v=>v>=100);
+      if(t2.length){opts.push(['最小的兩位數',t2[0]]);opts.push(['最大的兩位數',t2[t2.length-1]])}
+      if(t3.length)opts.push(['最小的三位數',t3[0]]);if(!opts.length)continue;
+      const [type,ans]=pick(opts);return{ds,L,mode,r,type,ans,T}}},
+    text:q=>`一個數除以 <b>${q.ds.join('、')}</b> 都${q.mode==='rem'?'餘':'欠'} <b>${q.r}</b>。符合條件的<b>${q.type}</b>是多少？`,
+    sol:q=>{const l=q.T.filter(v=>v<=q.ans);return `${q.ds.join('、')} 的 L.C.M. 是 ${q.L}<br>符合的數 = ${q.L} 的倍數 ${q.mode==='rem'?'+':'−'} ${q.r}：${l.length>5?'…、':''}${l.slice(-5).join('、')}<br>${q.type}是 <b>${q.ans}</b>`},
+    why:(q,v)=>{if(q.T.includes(v))return `${v} 符合條件，但不是${q.type}。`;
+      const other=q.mode==='rem'?(v+q.r)%q.L===0:(v>q.r&&(v-q.r)%q.L===0);
+      if(other)return q.mode==='rem'?`題目說「餘」，應該是 L.C.M. 的倍數「加」${q.r}。`:`題目說「欠」，應該是 L.C.M. 的倍數「減」${q.r}。`;
+      if(v%q.L===0)return `${v} 是公倍數，還要${q.mode==='rem'?'加':'減'} ${q.r}。`;return ''},
+    hint:'在下面的百數表點擊你的答案，看看它的除式；或按「下一步」。',
+    load(q,a){setV('c1',q.ds[0]);setV('c2',q.ds[1]);setV('c3',q.ds[2]||'');setV('cMode',q.mode);setV('cR',q.r);
+      const N=q.ans>100||a>100?200:100;setV('cRange',String(N));cStep=1;cPick=a>=1&&a<=N?a:null;renderChart()}},
+  clock:{unit:'',
+    gen(){for(;;){const g=Math.random()<.65?rand(3,12):rand(13,60),r=rand(0,g-1),qmax=Math.floor((999-r)/g);if(qmax<5)continue;
+      const s=new Set();while(s.size<3)s.add(rand(1,qmax));const q=[...s].sort((a,b)=>a-b);
+      if(gcd(q[1]-q[0],q[2]-q[1])!==1)continue;const n=q.map(x=>g*x+r);if(n[0]<10)continue;return{g,r,n,ans:g}}},
+    text:q=>`<b>${q.n.join('、')}</b> 除以同一個大於 1 的整數，餘數都相同。這個除數<b>最大</b>是多少？`,
+    sol:q=>`相差：${q.n[1]} − ${q.n[0]} = ${q.n[1]-q.n[0]}，${q.n[2]} − ${q.n[1]} = ${q.n[2]-q.n[1]}<br>兩個差的 H.C.F. 是 <b>${q.g}</b>（三個數除以 ${q.g} 都餘 ${q.r}）`,
+    why:(q,v)=>v>1&&v<q.g&&q.g%v===0?`除以 ${v} 的餘數的確相同，但還有更大的除數。`:'',
+    hint:'在下面的時鐘試試這個格數，看看三個數是否停在同一格；也可看「相差」。',
+    load(q,a){setV('k1',q.n[0]);setV('k2',q.n[1]);setV('k3',q.n[2]);if(a>=2&&a<=12)setV('ckN',a);clearInterval(ckTimer);renderClock()}}
+};
+const prState={};
+function prFb(tab,cls,html){$(tab+'-fb').innerHTML=`<div class="status ${cls}">${html}</div>`}
+function prScore(tab){const s=prState[tab];$(tab+'-score').textContent=`已做 ${s.done} 題 · 答對 ${s.right} 題 · 一次答對 ${s.first} 題`}
+function prNew(tab){const s=prState[tab];s.q=PR[tab].gen();s.qn++;s.tries=0;s.closed=false;s.counted=false;
+  $(tab+'-q').innerHTML=`<span class="pr-n">第 ${s.qn} 題</span>${PR[tab].text(s.q)}`;
+  $(tab+'-in').value='';$(tab+'-fb').innerHTML='';$(tab+'-note').textContent='';$(tab+'-show').hidden=true;prScore(tab)}
+function prCheck(tab){const s=prState[tab];if(s.closed)return;
+  const v=parseInt($(tab+'-in').value,10);if(isNaN(v)){prFb(tab,'info','請先輸入答案。');return}
+  if(!s.counted){s.counted=true;s.done++}
+  s.tries++;
+  if(v===s.q.ans){s.closed=true;s.right++;if(s.tries===1)s.first++;$(tab+'-show').hidden=true;
+    prFb(tab,'ok',`<b>${s.tries===1?'答對了！一次就做對。':'修正後答對了！'}</b><div class="pr-sol">${PR[tab].sol(s.q)}</div>`)}
+  else{const w=PR[tab].why(s.q,v);$(tab+'-show').hidden=false;
+    prFb(tab,'bad',`<b>${v} 不對。</b>${w?' '+w:''}<br>${PR[tab].hint}修改答案後再按「檢查」。`)}
+  prScore(tab)}
+function prShow(tab){const s=prState[tab];if(!s.counted){s.counted=true;s.done++}s.closed=true;$(tab+'-show').hidden=true;
+  prFb(tab,'info',`<b>答案：${s.q.ans}${PR[tab].unit?' '+PR[tab].unit:''}</b><div class="pr-sol">${PR[tab].sol(s.q)}</div>`);prScore(tab)}
+function prTool(tab){const s=prState[tab];const a=parseInt($(tab+'-in').value,10);PR[tab].load(s.q,isNaN(a)?null:a);
+  $(tab+'-note').textContent='已把本題的數字放進下面的工具'+(isNaN(a)?'。':'，並試用你的答案。');
+  $('tab-'+tab).querySelector('.controls').scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'})}
+function prInit(tab){
+  $('pr-'+tab).innerHTML=`<div class="pr-head"><span class="pr-badge">自我練習</span><span class="pr-score" id="${tab}-score"></span></div>
+  <div class="pr-q" id="${tab}-q"></div>
+  <div class="pr-row"><label class="pr-ans"><span class="sr">你的答案</span><input type="number" id="${tab}-in" inputmode="numeric" placeholder="你的答案">${PR[tab].unit?`<span>${PR[tab].unit}</span>`:''}</label>
+    <button class="btn primary" id="${tab}-check">檢查</button>
+    <button class="btn" id="${tab}-tool">用工具驗證</button>
+    <button class="btn" id="${tab}-show" hidden>顯示答案</button>
+    <button class="btn" id="${tab}-next">下一題</button></div>
+  <div id="${tab}-fb"></div><div class="pr-note" id="${tab}-note"></div>`;
+  prState[tab]={done:0,right:0,first:0,qn:0};
+  $(tab+'-check').onclick=()=>prCheck(tab);
+  $(tab+'-in').addEventListener('keydown',e=>{if(e.key==='Enter')prCheck(tab)});
+  $(tab+'-show').onclick=()=>prShow(tab);
+  $(tab+'-tool').onclick=()=>prTool(tab);
+  $(tab+'-next').onclick=()=>prNew(tab);
+  prNew(tab);
+}
+Object.keys(PR).forEach(prInit);
+function setPr(on){document.body.classList.toggle('no-pr',!on);$('prToggle').textContent=on?'隱藏練習題':'顯示練習題';try{localStorage.setItem('remPr',on?'1':'0')}catch(e){}}
+$('prToggle').onclick=()=>setPr(document.body.classList.contains('no-pr'));
+try{if(localStorage.getItem('remPr')==='0')setPr(false)}catch(e){}
+
+/* ---------- init ---------- */
+renderWood();renderArea();renderPile();renderChart();renderClock();
+let start='wood';
+const hash=location.hash.replace('#','');
+if(['wood','area','pile','chart','clock'].includes(hash))start=hash;
+else{try{const s=localStorage.getItem('remTab');if(s&&$('tab-'+s))start=s}catch(e){}}
+showTab(start);
+</script>
+
+</body></html>
